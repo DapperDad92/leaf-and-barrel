@@ -1,20 +1,35 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import AppNavigator from './src/navigation/AppNavigator';
+import { QueryProvider } from './src/providers/QueryProvider';
+
+// Define the dark theme
+const DarkTheme: Theme = {
+  ...DefaultTheme,
+  dark: true,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#C6A664', // Gold
+    background: '#1C1C1C', // Deep Charcoal
+    card: '#1C1C1C', // Deep Charcoal
+    text: '#F3E9DC', // Warm Cream
+    border: '#5A3E2B', // Oak Brown
+    notification: '#D14E24', // Ember
+  },
+};
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <QueryProvider>
+      <SafeAreaProvider>
+        <NavigationContainer theme={DarkTheme}>
+          <StatusBar style="light" />
+          <AppNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </QueryProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

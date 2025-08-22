@@ -18,6 +18,17 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# iOS
+ios/
+Pods/
+
+# Android
+android/
+
+# EAS Build
+eas.json
+.eas/
+
 # Metro
 .metro-health-check*
 
@@ -31,6 +42,8 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.*
 .env*.local
 
 # typescript

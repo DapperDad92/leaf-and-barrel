@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "leaf-and-barrel",
+    "name": "Leaf & Barrel",
     "slug": "leaf-and-barrel",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
