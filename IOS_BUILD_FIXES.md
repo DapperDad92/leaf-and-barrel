@@ -65,6 +65,45 @@ While the immediate ReactCodegen issue has been addressed, having spaces in the 
 
 3. **Testing**: After these fixes, always clean build folder in Xcode (Cmd+Shift+K) before building to ensure no cached issues remain.
 
+### Path Safety Guard (Added in T1-post)
+To prevent iOS build failures due to problematic characters in the project path, a path safety check has been implemented:
+
+1. **Script Location**: `scripts/check-path-safe.js`
+   - Checks for spaces and special characters: `& ( ) { } [ ] ! # $ ' " \`
+   - Provides clear error messages with suggestions for safe paths
+   - Exits with code 1 if unsafe characters are found
+
+2. **Automatic Execution**: The path check runs automatically before:
+   - `npm run ios`
+   - `npm run dev:ios`
+   - `npm run prebuild`
+   - `npm run prebuild:clean`
+   - `npm run build:ios`
+   - `npm run build:development`
+
+3. **Manual Check**: You can run the path check manually:
+   ```bash
+   npm run check:path
+   ```
+
+4. **Example Output**:
+   ```
+   ❌ Path Safety Check Failed!
+   
+   The current project path contains characters that will cause iOS build failures:
+     /Users/MitRober/Documents/Leaf & Barrel
+   
+   Problematic characters found: /Users/MitRober/Documents/Leaf & Barrel
+   
+   iOS builds require paths without these characters:
+   • Spaces
+   • Special characters: & ( ) { } [ ] ! # $ ' " \
+   
+   Solution:
+     Move your project to a path without special characters.
+     For example: /Users/YourName/Projects/LeafAndBarrel
+   ```
+
 ## Verification
 
 To verify the fixes are working:

@@ -18,6 +18,7 @@ A personal inventory management app for cigar and whiskey enthusiasts, built wit
 - npm or yarn
 - Expo CLI
 - iOS Simulator (for Mac) or Android Emulator
+- **Important for iOS**: Project must be located in a path without spaces or special characters
 
 ### Installation
 
@@ -78,6 +79,7 @@ The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for b
 #### Prerequisites
 - macOS with Xcode installed
 - CocoaPods (`sudo gem install cocoapods`)
+- **Project path must not contain spaces or special characters** (see Path Requirements below)
 
 #### Setup Steps
 
@@ -102,6 +104,25 @@ The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for b
    ```bash
    npm run ios
    ```
+
+#### Path Requirements for iOS Builds
+
+**Important**: iOS builds will fail if your project path contains spaces or special characters. The build system automatically checks for this before running iOS commands.
+
+Problematic characters that must be avoided:
+- Spaces
+- Special characters: `& ( ) { } [ ] ! # $ ' " \`
+
+If you see the error "Path Safety Check Failed!", move your project to a path without these characters. For example:
+- ❌ Bad: `/Users/YourName/My Projects/Leaf & Barrel`
+- ✅ Good: `/Users/YourName/Projects/LeafAndBarrel`
+
+The path check runs automatically before:
+- `npm run ios`
+- `npm run dev:ios`
+- `npm run prebuild`
+- `npm run build:ios`
+- `npm run build:development`
 
 #### Troubleshooting iOS Build Issues
 
