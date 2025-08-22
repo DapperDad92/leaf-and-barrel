@@ -70,7 +70,62 @@ npm run android
 # Run on web
 npm run web
 ```
-```
+
+### iOS Setup for Barcode Scanning
+
+The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for barcode scanning functionality. Here are the setup steps for iOS:
+
+#### Prerequisites
+- macOS with Xcode installed
+- CocoaPods (`sudo gem install cocoapods`)
+
+#### Setup Steps
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Install iOS pods**:
+   ```bash
+   cd ios
+   pod install
+   cd ..
+   ```
+
+3. **Important iOS Configuration**:
+   - The app includes a bridging header at `ios/LeafBarrel/LeafBarrel-Bridging-Header.h` that imports VisionCamera headers
+   - The Podfile includes custom configuration for VisionCamera header search paths
+   - We've patched `vision-camera-code-scanner` to properly import VisionCamera and add it as a dependency
+
+4. **Build and run**:
+   ```bash
+   npm run ios
+   ```
+
+#### Troubleshooting iOS Build Issues
+
+If you encounter the error `'VisionCamera/FrameProcessorPlugin.h' file not found`:
+
+1. Clean the build:
+   ```bash
+   cd ios
+   rm -rf build
+   cd ..
+   ```
+
+2. Reinstall pods:
+   ```bash
+   cd ios
+   pod deintegrate
+   pod install
+   cd ..
+   ```
+
+3. If the issue persists, ensure the patches are applied:
+   ```bash
+   npx patch-package
+   ```
 
 ### Network Configuration (Corporate/VPN Users)
 
