@@ -24,7 +24,7 @@ Refs: MVP flows and data model (ScanSession/ScanEvent, Inventory)
 
 Tasks
 
-Integrate react-native-vision-camera + vision-camera-code-scanner.
+Integrate react-native-vision-camera with built-in useCodeScanner hook.
 
 Permission flow + camera preview; throttle scans (1 result per ~1s).
 

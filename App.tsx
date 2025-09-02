@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import AppNavigator from './src/navigation/AppNavigator';
 import { QueryProvider } from './src/providers/QueryProvider';
+import { startSyncService, stopSyncService } from './src/services/syncService';
 
 // Define the dark theme
 const DarkTheme: Theme = {
@@ -22,6 +23,16 @@ const DarkTheme: Theme = {
 };
 
 export default function App() {
+  useEffect(() => {
+    // Start the sync service when app launches
+    startSyncService();
+
+    // Clean up on unmount
+    return () => {
+      stopSyncService();
+    };
+  }, []);
+
   return (
     <QueryProvider>
       <SafeAreaProvider>

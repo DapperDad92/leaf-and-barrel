@@ -9,8 +9,8 @@
 ---
 
 ## Decision Summary (MVP → Future)
-- **Mobile:** React Native (**Expo**)  
-- **Scanning & Camera:** `react-native-vision-camera` + `vision-camera-code-scanner`
+- **Mobile:** React Native (**Expo**)
+- **Scanning & Camera:** `react-native-vision-camera` with built-in code scanner (useCodeScanner hook)
 - **Data & Auth (MVP):** **Supabase** (Postgres + Storage + simple Auth)
 - **Local queue/offline:** SQLite (via `expo-sqlite`) or `react-native-mmkv` for small queues
 - **Navigation:** `@react-navigation/native` (Tabs: Cigars | Bottles | Pairings)
@@ -31,11 +31,12 @@ Why this path?
 - Theming: dark mode default; palette/typography per style guide
 
 **Camera & Scanning**
-- `react-native-vision-camera`
-- `vision-camera-code-scanner` (fast native scanning, iOS/Android)
+- `react-native-vision-camera` with built-in useCodeScanner hook
+- Fast native scanning for iOS/Android, supports multiple barcode formats (QR, EAN-13, UPC, etc.)
 - MVP: batch scanning, quantity prompt, confirm & add another, Done/Finish
 - Fallback: Manual Add sheet if barcode unknown
 - Photos: `expo-image-picker` *or* Vision Camera capture (stored in Supabase Storage)
+- No external frame-processor plugin required
 
 **UI**
 - Design language: Dark mode; Deep Charcoal (#1C1C1C), Oak Brown (#5A3E2B), Gold (#C6A664), Ember (#D14E24), Cream (#F3E9DC)
@@ -100,8 +101,7 @@ Why this path?
 
 ## Library List (MVP)
 - `expo` (Managed Workflow)
-- `react-native-vision-camera`
-- `vision-camera-code-scanner`
+- `react-native-vision-camera` (v4.7.1 with built-in code scanner)
 - `@react-navigation/native` (+ bottom tabs)
 - `@tanstack/react-query`
 - `expo-sqlite` (or `react-native-mmkv`)

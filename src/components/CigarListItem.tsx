@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { Cigar } from '../types/database';
 
 interface CigarListItemProps {
-  cigar: Cigar;
-  onPress?: (cigar: Cigar) => void;
+  cigar: Cigar & { quantity?: number };
+  onPress?: (cigar: Cigar & { quantity?: number }) => void;
 }
 
 const CigarListItem: React.FC<CigarListItemProps> = ({ cigar, onPress }) => {
   const formatSize = () => {
     if (cigar.size_ring_gauge && cigar.size_length_in) {
-      return `${cigar.size_ring_gauge} × ${cigar.size_length_in}"`;
+      return `${cigar.size_length_in}" × ${cigar.size_ring_gauge}`;
     }
     return null;
   };
@@ -27,9 +27,19 @@ const CigarListItem: React.FC<CigarListItemProps> = ({ cigar, onPress }) => {
       {/* Gold divider line at top */}
       <View style={styles.topDivider} />
       
-      <View style={styles.content}>
-        {/* Main cigar band area */}
-        <View style={styles.bandArea}>
+      <View style={styles.contentWrapper}>
+        {/* Photo thumbnail */}
+        {cigar.photo_url && (
+          <Image
+            source={{ uri: cigar.photo_url }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+          />
+        )}
+        
+        <View style={styles.content}>
+          {/* Main cigar band area */}
+          <View style={styles.bandArea}>
           {/* Brand - prominent display */}
           <Text style={styles.brand} numberOfLines={1}>
             {cigar.brand}
@@ -73,6 +83,14 @@ const CigarListItem: React.FC<CigarListItemProps> = ({ cigar, onPress }) => {
             {cigar.notes}
           </Text>
         )}
+        </View>
+
+        {/* Quantity display */}
+        {cigar.quantity !== undefined && cigar.quantity > 0 && (
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityText}>×{cigar.quantity}</Text>
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -103,8 +121,19 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: '#C6A664', // Gold
   },
-  content: {
+  contentWrapper: {
+    flexDirection: 'row',
     padding: 16,
+  },
+  thumbnail: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#5A3E2B', // Oak Brown fallback
+  },
+  content: {
+    flex: 1,
   },
   bandArea: {
     marginBottom: 12,
@@ -167,6 +196,22 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 8,
     lineHeight: 20,
+  },
+  quantityContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: '#C6A664', // Gold
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 32,
+    alignItems: 'center',
+  },
+  quantityText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1C1C1C', // Deep Charcoal
   },
 });
 

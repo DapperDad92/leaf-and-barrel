@@ -10,14 +10,16 @@ import {
   Alert,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import { getBottles, isBottlesArray } from '../api/bottles';
+import { getBottles, isBottlesArray, type BottleWithQuantity } from '../api/bottles';
 import { isErrorResponse } from '../utils/error';
 import BottleListItem from '../components/BottleListItem';
 import FloatingActionButton from '../components/FloatingActionButton';
-import type { Bottle } from '../types/database';
-import { BottlesScreenProps } from '../navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BottlesStackParamList } from '../navigation/types';
 
-const BottlesScreen: React.FC<BottlesScreenProps> = ({ navigation }) => {
+type Props = NativeStackScreenProps<BottlesStackParamList, 'BottlesList'>;
+
+const BottlesScreen: React.FC<Props> = ({ navigation }) => {
   // React Query hook for fetching bottles
   const {
     data: bottlesData,
@@ -34,17 +36,14 @@ const BottlesScreen: React.FC<BottlesScreenProps> = ({ navigation }) => {
   });
 
   // Handle bottle item press (for future navigation)
-  const handleBottlePress = (bottle: Bottle) => {
+  const handleBottlePress = (bottle: BottleWithQuantity) => {
     // TODO: Navigate to bottle detail screen
     Alert.alert('Bottle Selected', `${bottle.brand} ${bottle.expression || ''}`);
   };
 
-  // Handle scanner navigation
-  const handleScannerPress = () => {
-    // Navigate to Cigars tab, then to Scanner
-    navigation.navigate('Cigars', {
-      screen: 'Scanner',
-    });
+  // Handle FAB press - navigate to AddBottle
+  const handleFABPress = () => {
+    navigation.navigate('AddBottle', {});
   };
 
   // Render loading state
@@ -119,17 +118,23 @@ const BottlesScreen: React.FC<BottlesScreenProps> = ({ navigation }) => {
             </View>
           }
         />
-        <FloatingActionButton onPress={handleScannerPress} />
+        <FloatingActionButton onPress={handleFABPress} />
       </SafeAreaView>
     );
   }
+
+  // Calculate total quantity
+  const totalQuantity = bottles.reduce((sum, bottle) => sum + (bottle.quantity || 0), 0);
 
   // Render bottles list
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>My Collection</Text>
-        <Text style={styles.count}>{bottles.length} bottles</Text>
+        <Text style={styles.count}>
+          {bottles.length} {bottles.length === 1 ? 'bottle' : 'bottles'}
+          {totalQuantity > 0 && ` (${totalQuantity} total)`}
+        </Text>
       </View>
       
       <FlatList
@@ -154,7 +159,7 @@ const BottlesScreen: React.FC<BottlesScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       />
       
-      <FloatingActionButton onPress={handleScannerPress} />
+      <FloatingActionButton onPress={handleFABPress} />
     </SafeAreaView>
   );
 };

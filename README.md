@@ -2,6 +2,22 @@
 
 A personal inventory management app for cigar and whiskey enthusiasts, built with React Native and Expo.
 
+## Features
+
+- **Barcode Scanning**: Quick inventory management with known/unknown item resolution
+- **Offline-First Architecture**: Full functionality without internet, with automatic sync when online
+- **Smart Scanner**:
+  - Real-time barcode detection with haptic and audio feedback
+  - Torch control for low-light scanning
+  - Conflict resolution for multiple matches
+  - Offline scanner with queue sync
+- **Inventory Management**: Track cigars and bottles with photos and details
+- **Dark Mode UI**: Elegant interface optimized for low-light environments
+
+## User Flows
+
+- **Scanner Flow**: See [Scanner Flow Documentation](docs/flows/scanner.md) for detailed barcode scanning workflow
+
 ## Tech Stack
 
 - **Framework**: React Native with Expo
@@ -74,7 +90,7 @@ npm run web
 
 ### iOS Setup for Barcode Scanning
 
-The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for barcode scanning functionality. Here are the setup steps for iOS:
+The app uses `react-native-vision-camera` with its built-in code scanner for barcode scanning functionality. Here are the setup steps for iOS:
 
 #### Prerequisites
 - macOS with Xcode installed
@@ -98,7 +114,7 @@ The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for b
 3. **Important iOS Configuration**:
    - The app includes a bridging header at `ios/LeafBarrel/LeafBarrel-Bridging-Header.h` that imports VisionCamera headers
    - The Podfile includes custom configuration for VisionCamera header search paths
-   - We've patched `vision-camera-code-scanner` to properly import VisionCamera and add it as a dependency
+   - The app uses VisionCamera v3's built-in useCodeScanner hook, so no external barcode scanning plugin is required
 
 4. **Build and run**:
    ```bash
@@ -180,7 +196,12 @@ npx expo start --tunnel
 │   ├── screens/      # Screen components
 │   ├── navigation/   # Navigation configuration
 │   ├── types/        # TypeScript type definitions
-│   └── utils/        # Utility functions
+│   ├── utils/        # Utility functions
+│   ├── hooks/        # Custom React hooks
+│   ├── services/     # Business logic services
+│   └── store/        # Offline queue and state management
+├── docs/             # Documentation
+│   └── flows/        # User flow documentation
 ├── assets/           # Images, fonts, and other static assets
 ├── .env.example      # Environment variables template
 ├── app.json          # Expo configuration

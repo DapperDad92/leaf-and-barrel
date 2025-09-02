@@ -28,11 +28,13 @@ GET /lookup/barcode/:code
 
 Barcode strategy
 
-Primary: vision-camera-code-scanner (fast, native, iOS/Android)
+Primary: react-native-vision-camera's built-in useCodeScanner hook (fast, native, iOS/Android)
 
 Schema: store barcode and alt_barcodes[] on InventoryItem
 
 Unknown barcode → Manual Add, save barcode for next time
+
+No external frame-processor plugin required - VisionCamera v3 includes code scanning natively
 
 Photos (MVP)
 

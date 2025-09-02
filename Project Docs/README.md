@@ -43,11 +43,11 @@ MVP is personal, single-user, utility-first. Future phases add reviews, pairing 
 - **UI/Styling:** Dark mode first, per [Leaf & Barrel Style Guide](./Leaf_And_Barrel_Style_Guide.pdf)
 
 ### Camera & Scanning
-- `react-native-vision-camera`
-- `vision-camera-code-scanner`
+- `react-native-vision-camera` with built-in code scanner (useCodeScanner hook)
 - MVP: batch scanning + quantity prompt
 - Fallback: manual add if barcode unknown
 - Photo capture: display only (stored in backend)
+- Supports multiple barcode formats (QR, EAN-13, UPC, etc.)
 
 ### Backend (MVP)
 - **Supabase** (Postgres + Auth + Storage)

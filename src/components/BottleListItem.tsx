@@ -10,8 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Bottle } from '../types/database';
 
 interface BottleListItemProps {
-  bottle: Bottle;
-  onPress: (bottle: Bottle) => void;
+  bottle: Bottle & { quantity?: number };
+  onPress: (bottle: Bottle & { quantity?: number }) => void;
 }
 
 export default function BottleListItem({ bottle, onPress }: BottleListItemProps) {
@@ -97,6 +97,13 @@ export default function BottleListItem({ bottle, onPress }: BottleListItemProps)
           </Text>
         )}
       </View>
+
+      {/* Quantity display */}
+      {bottle.quantity !== undefined && bottle.quantity > 0 && (
+        <View style={styles.quantityContainer}>
+          <Text style={styles.quantityText}>×{bottle.quantity}</Text>
+        </View>
+      )}
 
       <View style={styles.chevronContainer}>
         <Ionicons name="chevron-forward" size={20} color="#C6A664" />
@@ -197,5 +204,19 @@ const styles = StyleSheet.create({
   },
   chevronContainer: {
     marginLeft: 8,
+  },
+  quantityContainer: {
+    backgroundColor: '#C6A664', // Gold
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+    minWidth: 32,
+    alignItems: 'center',
+  },
+  quantityText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1C1C1C', // Deep Charcoal
   },
 });
