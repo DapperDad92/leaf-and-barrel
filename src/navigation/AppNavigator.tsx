@@ -8,10 +8,18 @@ import CigarsScreen from '../screens/CigarsScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 import BottlesScreen from '../screens/BottlesScreen';
 import PairingsScreen from '../screens/PairingsScreen';
-import { RootTabParamList, CigarsStackParamList } from './types';
+import { AddCigarScreen } from '../screens/AddCigarScreen';
+import { AddBottleScreen } from '../screens/AddBottleScreen';
+import { RootTabParamList, CigarsStackParamList, BottlesStackParamList } from './types';
+import { withErrorBoundary } from '../components/ErrorBoundary';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const CigarsStack = createNativeStackNavigator<CigarsStackParamList>();
+const BottlesStack = createNativeStackNavigator<BottlesStackParamList>();
+
+// Wrap add screens with error boundaries
+const AddCigarScreenWithErrorBoundary = withErrorBoundary(AddCigarScreen);
+const AddBottleScreenWithErrorBoundary = withErrorBoundary(AddBottleScreen);
 
 // Cigars Stack Navigator
 const CigarsStackNavigator: React.FC = () => {
@@ -42,7 +50,47 @@ const CigarsStackNavigator: React.FC = () => {
           title: 'Scan Barcode',
         }}
       />
+      <CigarsStack.Screen
+        name="AddCigar"
+        component={AddCigarScreenWithErrorBoundary}
+        options={{
+          title: 'Add Cigar',
+        }}
+      />
     </CigarsStack.Navigator>
+  );
+};
+
+// Bottles Stack Navigator
+const BottlesStackNavigator: React.FC = () => {
+  return (
+    <BottlesStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#1C1C1C', // Deep Charcoal
+        },
+        headerTintColor: '#C6A664', // Gold
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+        headerBackTitle: 'Back',
+      }}
+    >
+      <BottlesStack.Screen
+        name="BottlesList"
+        component={BottlesScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <BottlesStack.Screen
+        name="AddBottle"
+        component={AddBottleScreenWithErrorBoundary}
+        options={{
+          title: 'Add Bottle',
+        }}
+      />
+    </BottlesStack.Navigator>
   );
 };
 
@@ -87,7 +135,7 @@ const AppNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Bottles"
-        component={BottlesScreen}
+        component={BottlesStackNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="wine" size={size} color={color} />

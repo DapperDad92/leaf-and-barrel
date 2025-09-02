@@ -18,6 +18,7 @@ A personal inventory management app for cigar and whiskey enthusiasts, built wit
 - npm or yarn
 - Expo CLI
 - iOS Simulator (for Mac) or Android Emulator
+- **Important for iOS**: Project must be located in a path without spaces or special characters
 
 ### Installation
 
@@ -70,7 +71,82 @@ npm run android
 # Run on web
 npm run web
 ```
-```
+
+### iOS Setup for Barcode Scanning
+
+The app uses `react-native-vision-camera` and `vision-camera-code-scanner` for barcode scanning functionality. Here are the setup steps for iOS:
+
+#### Prerequisites
+- macOS with Xcode installed
+- CocoaPods (`sudo gem install cocoapods`)
+- **Project path must not contain spaces or special characters** (see Path Requirements below)
+
+#### Setup Steps
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Install iOS pods**:
+   ```bash
+   cd ios
+   pod install
+   cd ..
+   ```
+
+3. **Important iOS Configuration**:
+   - The app includes a bridging header at `ios/LeafBarrel/LeafBarrel-Bridging-Header.h` that imports VisionCamera headers
+   - The Podfile includes custom configuration for VisionCamera header search paths
+   - We've patched `vision-camera-code-scanner` to properly import VisionCamera and add it as a dependency
+
+4. **Build and run**:
+   ```bash
+   npm run ios
+   ```
+
+#### Path Requirements for iOS Builds
+
+**Important**: iOS builds will fail if your project path contains spaces or special characters. The build system automatically checks for this before running iOS commands.
+
+Problematic characters that must be avoided:
+- Spaces
+- Special characters: `& ( ) { } [ ] ! # $ ' " \`
+
+If you see the error "Path Safety Check Failed!", move your project to a path without these characters. For example:
+- ❌ Bad: `/Users/YourName/My Projects/Leaf & Barrel`
+- ✅ Good: `/Users/YourName/Projects/LeafAndBarrel`
+
+The path check runs automatically before:
+- `npm run ios`
+- `npm run dev:ios`
+- `npm run prebuild`
+- `npm run build:ios`
+- `npm run build:development`
+
+#### Troubleshooting iOS Build Issues
+
+If you encounter the error `'VisionCamera/FrameProcessorPlugin.h' file not found`:
+
+1. Clean the build:
+   ```bash
+   cd ios
+   rm -rf build
+   cd ..
+   ```
+
+2. Reinstall pods:
+   ```bash
+   cd ios
+   pod deintegrate
+   pod install
+   cd ..
+   ```
+
+3. If the issue persists, ensure the patches are applied:
+   ```bash
+   npx patch-package
+   ```
 
 ### Network Configuration (Corporate/VPN Users)
 
