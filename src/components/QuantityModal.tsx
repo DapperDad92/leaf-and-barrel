@@ -8,56 +8,79 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface QuantityModalProps {
   visible: boolean;
-  onClose: () => void;
-  onConfirm: (quantity: number) => void;
-  itemType: 'cigar' | 'bottle';
-  barcode: string;
+  item: {
+    id: string;
+    kind: 'cigar' | 'bottle';
+    ref_id: string;
+    quantity: number;
+    brand?: string;
+    type?: string;
+    line?: string;
+    expression?: string;
+  } | null;
+  optimisticQuantity?: number;
+  onAdd: (quantity: number) => void;
+  onCancel: () => void;
 }
 
 export default function QuantityModal({
   visible,
-  onClose,
-  onConfirm,
-  itemType,
-  barcode,
+  item,
+  optimisticQuantity = 0,
+  onAdd,
+  onCancel,
 }: QuantityModalProps) {
-  const [quantity, setQuantity] = useState('1');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customQuantity, setCustomQuantity] = useState('1');
 
-  const handleConfirm = () => {
-    const qty = parseInt(quantity, 10);
-    if (qty > 0) {
-      onConfirm(qty);
-      setQuantity('1'); // Reset for next scan
+  const handleAddOne = () => {
+    onAdd(1);
+    resetState();
+  };
+
+  const handleCustomAdd = () => {
+    const qty = parseInt(customQuantity, 10);
+    if (isNaN(qty) || qty <= 0) {
+      Alert.alert('Invalid Quantity', 'Please enter a positive number');
+      return;
     }
+    onAdd(qty);
+    resetState();
   };
 
-  const handleClose = () => {
-    setQuantity('1'); // Reset on close
-    onClose();
+  const handleCancel = () => {
+    resetState();
+    onCancel();
   };
 
-  const incrementQuantity = () => {
-    setQuantity((prev) => String(parseInt(prev, 10) + 1));
+  const resetState = () => {
+    setShowCustomInput(false);
+    setCustomQuantity('1');
   };
 
-  const decrementQuantity = () => {
-    setQuantity((prev) => {
-      const current = parseInt(prev, 10);
-      return String(Math.max(1, current - 1));
-    });
-  };
+  if (!item) return null;
+
+  const itemName = item.kind === 'cigar' 
+    ? `${item.brand || 'Unknown'} ${item.line || ''}`.trim()
+    : `${item.brand || 'Unknown'} ${item.expression || ''}`.trim();
+
+  const itemType = item.kind === 'cigar' ? 'Cigar' : 'Bottle';
+  
+  // Calculate display quantity including optimistic updates
+  const displayQuantity = item.quantity + optimisticQuantity;
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={handleClose}
+      onRequestClose={handleCancel}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -66,80 +89,124 @@ export default function QuantityModal({
         <TouchableOpacity
           style={styles.backdrop}
           activeOpacity={1}
-          onPress={handleClose}
+          onPress={handleCancel}
         />
         
         <View style={styles.content}>
+          {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Add to Inventory</Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <Text style={styles.title}>Item Found</Text>
+            <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
               <Ionicons name="close" size={24} color="#F3E9DC" />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.body}>
-            <View style={styles.itemInfo}>
-              <Ionicons
-                name={itemType === 'cigar' ? 'flame-outline' : 'wine-outline'}
-                size={40}
-                color="#C6A664"
-              />
-              <Text style={styles.itemType}>
-                {itemType === 'cigar' ? 'Cigar' : 'Bottle'}
-              </Text>
+          {/* Item Details */}
+          <View style={styles.itemDetails}>
+            <Ionicons
+              name={item.kind === 'cigar' ? 'flame' : 'wine'}
+              size={48}
+              color="#C6A664"
+            />
+            <Text style={styles.itemName}>{itemName}</Text>
+            <Text style={styles.itemType}>{itemType}</Text>
+            <Text style={styles.currentQuantity}>
+              Current Quantity: {displayQuantity}
+              {optimisticQuantity > 0 && (
+                <Text style={styles.optimisticIndicator}> (+{optimisticQuantity} pending)</Text>
+              )}
+            </Text>
+          </View>
+
+          {/* Action Buttons */}
+          {!showCustomInput ? (
+            <View style={styles.buttonContainer}>
+              {/* Primary Button - Add 1 */}
+              <TouchableOpacity
+                style={[styles.button, styles.primaryButton]}
+                onPress={handleAddOne}
+              >
+                <Text style={styles.primaryButtonText}>Add 1</Text>
+              </TouchableOpacity>
+
+              {/* Secondary Button - Custom */}
+              <TouchableOpacity
+                style={[styles.button, styles.secondaryButton]}
+                onPress={() => setShowCustomInput(true)}
+              >
+                <Text style={styles.secondaryButtonText}>Custom...</Text>
+              </TouchableOpacity>
+
+              {/* Cancel Button */}
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={handleCancel}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
-
-            <Text style={styles.barcodeText}>Barcode: {barcode}</Text>
-
-            <View style={styles.quantitySection}>
-              <Text style={styles.quantityLabel}>Quantity</Text>
+          ) : (
+            <View style={styles.customInputContainer}>
+              <Text style={styles.customInputLabel}>Enter Quantity</Text>
               
-              <View style={styles.quantityControls}>
+              <View style={styles.inputRow}>
                 <TouchableOpacity
-                  onPress={decrementQuantity}
-                  style={styles.quantityButton}
+                  onPress={() => {
+                    const current = parseInt(customQuantity, 10) || 0;
+                    if (current > 1) {
+                      setCustomQuantity(String(current - 1));
+                    }
+                  }}
+                  style={styles.stepperButton}
                 >
                   <Ionicons name="remove" size={24} color="#F3E9DC" />
                 </TouchableOpacity>
 
                 <TextInput
                   style={styles.quantityInput}
-                  value={quantity}
+                  value={customQuantity}
                   onChangeText={(text) => {
                     const num = text.replace(/[^0-9]/g, '');
-                    if (num === '' || parseInt(num, 10) > 0) {
-                      setQuantity(num || '1');
-                    }
+                    setCustomQuantity(num || '0');
                   }}
                   keyboardType="number-pad"
                   selectTextOnFocus
+                  autoFocus
                 />
 
                 <TouchableOpacity
-                  onPress={incrementQuantity}
-                  style={styles.quantityButton}
+                  onPress={() => {
+                    const current = parseInt(customQuantity, 10) || 0;
+                    setCustomQuantity(String(current + 1));
+                  }}
+                  style={styles.stepperButton}
                 >
                   <Ionicons name="add" size={24} color="#F3E9DC" />
                 </TouchableOpacity>
               </View>
+
+              <View style={styles.customButtonRow}>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => {
+                    setShowCustomInput(false);
+                    setCustomQuantity('1');
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Back</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, styles.primaryButton]}
+                  onPress={handleCustomAdd}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    Add {customQuantity}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleClose}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
-              onPress={handleConfirm}
-            >
-              <Text style={styles.confirmButtonText}>Add to Inventory</Text>
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -153,10 +220,10 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   content: {
-    backgroundColor: '#2C2C2C',
+    backgroundColor: '#1C1C1C',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: Platform.OS === 'ios' ? 34 : 20,
@@ -167,7 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#3C3C3C',
+    borderBottomColor: '#2C2C2C',
   },
   title: {
     fontSize: 20,
@@ -177,85 +244,109 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
-  body: {
-    padding: 20,
-  },
-  itemInfo: {
+  itemDetails: {
     alignItems: 'center',
-    marginBottom: 20,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  itemName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F3E9DC',
+    marginTop: 12,
+    textAlign: 'center',
   },
   itemType: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#F3E9DC',
-    marginTop: 8,
-  },
-  barcodeText: {
     fontSize: 14,
-    color: '#F3E9DC',
-    opacity: 0.7,
-    textAlign: 'center',
-    marginBottom: 30,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    color: '#C6A664',
+    marginTop: 4,
   },
-  quantitySection: {
-    alignItems: 'center',
-  },
-  quantityLabel: {
+  currentQuantity: {
     fontSize: 16,
     color: '#F3E9DC',
-    marginBottom: 12,
+    marginTop: 12,
+    opacity: 0.8,
   },
-  quantityControls: {
+  buttonContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    gap: 12,
+  },
+  button: {
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  primaryButton: {
+    backgroundColor: '#C6A664',
+  },
+  primaryButtonText: {
+    color: '#1C1C1C',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#2C2C2C',
+    borderWidth: 1,
+    borderColor: '#C6A664',
+  },
+  secondaryButtonText: {
+    color: '#C6A664',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    backgroundColor: '#2C2C2C',
+  },
+  cancelButtonText: {
+    color: '#F3E9DC',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  customInputContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  customInputLabel: {
+    fontSize: 16,
+    color: '#F3E9DC',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 16,
+    marginBottom: 24,
   },
-  quantityButton: {
+  stepperButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#3C3C3C',
+    backgroundColor: '#2C2C2C',
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityInput: {
     width: 80,
     height: 44,
-    backgroundColor: '#3C3C3C',
+    backgroundColor: '#2C2C2C',
     borderRadius: 8,
     color: '#F3E9DC',
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     textAlign: 'center',
     paddingHorizontal: 12,
   },
-  footer: {
+  customButtonRow: {
     flexDirection: 'row',
-    padding: 20,
     gap: 12,
   },
-  button: {
-    flex: 1,
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#3C3C3C',
-  },
-  cancelButtonText: {
-    color: '#F3E9DC',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  confirmButton: {
-    backgroundColor: '#C6A664',
-  },
-  confirmButtonText: {
-    color: '#1C1C1C',
-    fontSize: 16,
-    fontWeight: '600',
+  optimisticIndicator: {
+    color: '#C6A664',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });
